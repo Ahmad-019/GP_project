@@ -5,7 +5,7 @@ from googleapiclient.discovery import build
 
 # --- CONFIGURATION AND PARAMETERS ---
 # Enter your YouTube Data API v3 Key below
-API_KEY = 'AIzaSyB0ygBDFFwwdnNdoyJnaBYuLrwE-dCn5R0' 
+API_KEY = 'YOUR_API_KEY_HERE' 
 
 # Target Video: Joe Rogan Experience #2219 - Donald Trump
 VIDEO_ID = 'hBMoPUAeLnY' 
