@@ -11,34 +11,33 @@ from typing import List
 # ==========================================================
 # API KEY
 # ==========================================================
-API_KEY = "enter_your_youtube_api_key_here"
+API_KEY = "your_api_key_here" 
 # ==========================================================
 
 st.set_page_config(
-    page_title="GoldenMoment · BI Video Analytics",
+    page_title="Auto Highlight · BI Analytics",
     page_icon="✦",
     layout="wide"
 )
 
 # ═══════════════════════════════════════════════════════════
-#  DESIGN SYSTEM — LUXURY DARK EDITORIAL
+#  DESIGN SYSTEM — CHERRY RED & OFF-WHITE THEME
 # ═══════════════════════════════════════════════════════════
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=JetBrains+Mono:wght@400;600&display=swap');
 :root {
-  --gold:       #f0b429;
-  --gold-dim:   #c8881a;
-  --ember:      #ff5e1a;
-  --surface-0:  #06090f;
-  --surface-1:  #0c1018;
-  --surface-2:  #111720;
-  --surface-3:  #1a2030;
-  --border:     rgba(255,255,255,0.07);
-  --border-hi:  rgba(240,180,41,0.35);
-  --text-1:     #f0f2f8;
-  --text-2:     #8b93a8;
-  --text-3:     #4a5268;
+  --cherry:     #800020; 
+  --cherry-lt:  #9E1B34;
+  --surface-0:  #FAF9F6; 
+  --surface-1:  #E2DCD0; 
+  --surface-2:  #FFFFFF; 
+  --surface-3:  #D1C9B8; 
+  --border:     rgba(128,0,32,0.15);
+  --border-hi:  rgba(128,0,32,0.4);
+  --text-1:     #1A1A1A;
+  --text-2:     #4A4A4A;
+  --text-3:     #707070;
   --font-display: 'Bebas Neue', sans-serif;
   --font-body:    'DM Sans', sans-serif;
   --font-mono:    'JetBrains Mono', monospace;
@@ -53,32 +52,35 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stAppViewContainer
 #MainMenu, footer, header { visibility: hidden; }
 [data-testid="stSidebar"] { background: var(--surface-1) !important; border-right: 1px solid var(--border) !important; }
 [data-testid="stSidebar"] > div { padding-top: 0 !important; }
-[data-testid="stSidebar"] .stTextInput label {
+[data-testid="stSidebar"] .stTextInput label, [data-testid="stSidebar"] .stSelectbox label {
     color: var(--text-3) !important; font-size: 0.65rem !important; font-weight: 600 !important;
     letter-spacing: 1.4px !important; text-transform: uppercase !important; font-family: var(--font-mono) !important;
 }
-[data-testid="stSidebar"] .stTextInput input {
+[data-testid="stSidebar"] .stTextInput input, [data-testid="stSidebar"] .stSelectbox > div > div {
     background: var(--surface-2) !important; border: 1px solid var(--border) !important;
     border-radius: 8px !important; color: var(--text-1) !important; font-family: var(--font-mono) !important;
-    font-size: 0.78rem !important; padding: 10px 14px !important; transition: border-color 0.2s !important;
+    font-size: 0.78rem !important; transition: border-color 0.2s !important;
 }
-[data-testid="stSidebar"] .stTextInput input:focus {
-    border-color: var(--gold) !important; box-shadow: 0 0 0 3px rgba(240,180,41,0.12) !important; outline: none !important;
+[data-testid="stSidebar"] .stTextInput input { padding: 10px 14px !important; }
+[data-testid="stSidebar"] .stTextInput input:focus, [data-testid="stSidebar"] .stSelectbox > div > div:focus {
+    border-color: var(--cherry) !important; box-shadow: 0 0 0 3px rgba(128,0,32,0.12) !important; outline: none !important;
 }
 [data-testid="stSidebar"] .stTextInput input::placeholder { color: var(--text-3) !important; font-size: 0.75rem !important; }
-.stProgress > div > div > div > div { background: linear-gradient(90deg, var(--gold), var(--ember)) !important; border-radius: 4px !important; }
+.stProgress > div > div > div > div { background: linear-gradient(90deg, var(--cherry), var(--cherry-lt)) !important; border-radius: 4px !important; }
 div[data-testid="metric-container"] {
     background: var(--surface-2) !important; border: 1px solid var(--border) !important;
     border-radius: 12px !important; padding: 20px 24px !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.02) !important;
 }
-[data-testid="stMetricValue"] { font-family: var(--font-display) !important; font-size: 2.2rem !important; letter-spacing: 1px !important; color: var(--text-1) !important; }
+[data-testid="stMetricValue"] { font-family: var(--font-display) !important; font-size: 2.2rem !important; letter-spacing: 1px !important; color: var(--cherry) !important; }
 [data-testid="stMetricLabel"] { font-family: var(--font-mono) !important; font-size: 0.65rem !important; letter-spacing: 1.2px !important; text-transform: uppercase !important; color: var(--text-3) !important; }
-[data-testid="stStatusContainer"] { background: var(--surface-2) !important; border: 1px solid var(--border) !important; border-radius: 12px !important; font-family: var(--font-mono) !important; font-size: 0.8rem !important; }
+[data-testid="stStatusContainer"] { background: var(--surface-2) !important; border: 1px solid var(--border) !important; border-radius: 12px !important; font-family: var(--font-mono) !important; font-size: 0.8rem !important; color: var(--text-1) !important; }
 hr { border-color: var(--border) !important; }
 .stAlert { background: var(--surface-2) !important; border: 1px solid var(--border) !important; border-radius: 10px !important; color: var(--text-2) !important; font-family: var(--font-body) !important; }
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: var(--surface-0); }
 ::-webkit-scrollbar-thumb { background: var(--surface-3); border-radius: 4px; }
+.highlight-link:hover { opacity: 0.8; transform: scale(1.02); }
 @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
 </style>
 """, unsafe_allow_html=True)
@@ -87,13 +89,13 @@ hr { border-color: var(--border) !important; }
 #  EMOTION CONFIG
 # ═══════════════════════════════════════════════════════════
 EMOTION_CONFIG = {
-    "Funny":         {"color": "#f0b429", "bg": "rgba(240,180,41,0.1)",  "border": "rgba(240,180,41,0.3)",  "icon": "😂", "glow": "rgba(240,180,41,0.12)"},
-    "Happy":         {"color": "#22c55e", "bg": "rgba(34,197,94,0.1)",   "border": "rgba(34,197,94,0.3)",   "icon": "😊", "glow": "rgba(34,197,94,0.12)"},
-    "Sad":           {"color": "#60a5fa", "bg": "rgba(96,165,250,0.1)",  "border": "rgba(96,165,250,0.3)",  "icon": "😢", "glow": "rgba(96,165,250,0.12)"},
-    "Controversial": {"color": "#f87171", "bg": "rgba(248,113,113,0.1)", "border": "rgba(248,113,113,0.3)", "icon": "🔥", "glow": "rgba(248,113,113,0.12)"},
-    "Inspirational": {"color": "#c084fc", "bg": "rgba(192,132,252,0.1)", "border": "rgba(192,132,252,0.3)", "icon": "✨", "glow": "rgba(192,132,252,0.12)"},
+    "Funny":         {"color": "#D97706", "bg": "rgba(217,119,6,0.1)",  "border": "rgba(217,119,6,0.3)",  "icon": "😂"},
+    "Happy":         {"color": "#059669", "bg": "rgba(5,150,105,0.1)",  "border": "rgba(5,150,105,0.3)",  "icon": "😊"},
+    "Sad":           {"color": "#2563EB", "bg": "rgba(37,99,235,0.1)",  "border": "rgba(37,99,235,0.3)",  "icon": "😢"},
+    "Controversial": {"color": "#DC2626", "bg": "rgba(220,38,38,0.1)",  "border": "rgba(220,38,38,0.3)",  "icon": "🔥"},
+    "Inspirational": {"color": "#7C3AED", "bg": "rgba(124,58,237,0.1)", "border": "rgba(124,58,237,0.3)", "icon": "✨"},
 }
-FALLBACK_CFG = {"color": "#f0f2f8", "bg": "rgba(255,255,255,0.06)", "border": "rgba(255,255,255,0.15)", "icon": "✦", "glow": "rgba(255,255,255,0.06)"}
+FALLBACK_CFG = {"color": "#4A4A4A", "bg": "rgba(74,74,74,0.06)", "border": "rgba(74,74,74,0.15)", "icon": "✦"}
 
 # ═══════════════════════════════════════════════════════════
 #  ML ENGINE
@@ -130,7 +132,7 @@ def fetch_comments_refined(video_id: str, max_results: int = 50000):
             else:
                 msg = f"⚙️  Optimising payload for inference — {n:,} samples"
             status_text.markdown(
-f"<p style='color:#8b93a8;font-size:0.8rem;font-family:JetBrains Mono,monospace;'>{msg}</p>",
+f"<p style='color:#707070;font-size:0.8rem;font-family:JetBrains Mono,monospace;'>{msg}</p>",
 unsafe_allow_html=True
             )
             if not next_page_token:
@@ -184,14 +186,20 @@ def compute_smart_highlights(df: pd.DataFrame, top_n: int = 3) -> pd.DataFrame:
     for window, grp in df.groupby('Window'):
         count        = len(grp)
         dominant_ts  = grp['Timestamp'].mode()[0]
+        
+        pts = list(map(int, dominant_ts.split(':')))
+        exact_secs = pts[0]*3600 + pts[1]*60 + pts[2] if len(pts) == 3 else pts[0]*60 + pts[1]
+        
         dominant_em  = grp['Sentiment'].mode()[0]
         unique_em    = grp['Sentiment'].nunique()
         diversity_b  = 1 + (unique_em - 1) * 0.15
         avg_heat     = sum(EMOTION_HEAT.get(e, 1.0) for e in grp['Sentiment']) / count
         raw_score    = count * avg_heat * diversity_b
+        
         records.append({
             'Window':    window,
             'Timestamp': dominant_ts,
+            'Seconds':   exact_secs,
             'Sentiment': dominant_em,
             'Count':     count,
             'RawScore':  raw_score,
@@ -225,12 +233,12 @@ def compute_smart_highlights(df: pd.DataFrame, top_n: int = 3) -> pd.DataFrame:
 # ═══════════════════════════════════════════════════════════
 with st.sidebar:
     st.markdown("""
-<div style="padding:28px 20px 20px;border-bottom:1px solid rgba(255,255,255,0.07);margin-bottom:24px;">
+<div style="padding:28px 20px 20px;border-bottom:1px solid rgba(128,0,32,0.15);margin-bottom:24px;">
 <div style="display:flex;align-items:center;gap:12px;">
-<div style="width:40px;height:40px;background:linear-gradient(135deg,#f0b429,#ff5e1a);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:0;color:#000;">G</div>
+<div style="width:40px;height:40px;background:linear-gradient(135deg,#800020,#9E1B34);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:0;color:#FFFFFF;box-shadow:0 4px 10px rgba(128,0,32,0.2);">G</div>
 <div>
-<div style="font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:2px;color:#f0f2f8;line-height:1.1;">GOLDEN MOMENT</div>
-<div style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:#4a5268;letter-spacing:1px;margin-top:2px;">BI VIDEO ANALYTICS</div>
+<div style="font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:2px;color:#1A1A1A;line-height:1.1;">GOLDEN MOMENT</div>
+<div style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:#707070;letter-spacing:1px;margin-top:2px;">BI VIDEO ANALYTICS</div>
 </div>
 </div>
 </div>
@@ -238,7 +246,7 @@ with st.sidebar:
 
     st.markdown("""
 <div style="padding:0 4px 6px;">
-<span style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;letter-spacing:1.3px;text-transform:uppercase;color:#4a5268;">
+<span style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;letter-spacing:1.3px;text-transform:uppercase;color:#707070;">
 DATA SOURCE
 </span>
 </div>
@@ -252,8 +260,23 @@ DATA SOURCE
     )
 
     st.markdown("""
+<div style="margin-top:20px;padding:0 4px 6px;">
+<span style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;letter-spacing:1.3px;text-transform:uppercase;color:#707070;">
+TARGET EMOTION
+</span>
+</div>
+""", unsafe_allow_html=True)
+
+    selected_filter = st.selectbox(
+        "Filter by Emotion",
+        options=["All Emotions", "Funny", "Happy", "Sad", "Controversial", "Inspirational"],
+        label_visibility="collapsed",
+        index=0
+    )
+
+    st.markdown("""
 <div style="margin-top:28px;padding:0 4px 12px;">
-<div style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;letter-spacing:1.3px;text-transform:uppercase;color:#4a5268;margin-bottom:14px;">
+<div style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;letter-spacing:1.3px;text-transform:uppercase;color:#707070;margin-bottom:14px;">
 INTELLIGENCE STACK
 </div>
 </div>
@@ -267,16 +290,16 @@ INTELLIGENCE STACK
         ("HEAT",   "Emotion intensity weights"),
     ]:
         st.markdown(f"""
-<div style="display:flex;align-items:center;gap:10px;padding:7px 4px;border-bottom:1px solid rgba(255,255,255,0.04);">
-<span style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;font-weight:600;background:rgba(240,180,41,0.08);border:1px solid rgba(240,180,41,0.18);color:#f0b429;border-radius:4px;padding:2px 6px;flex-shrink:0;">{tag}</span>
-<span style="font-size:0.78rem;color:#8b93a8;">{label}</span>
+<div style="display:flex;align-items:center;gap:10px;padding:7px 4px;border-bottom:1px solid rgba(128,0,32,0.06);">
+<span style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;font-weight:600;background:rgba(128,0,32,0.08);border:1px solid rgba(128,0,32,0.18);color:#800020;border-radius:4px;padding:2px 6px;flex-shrink:0;">{tag}</span>
+<span style="font-size:0.78rem;color:#4A4A4A;">{label}</span>
 </div>
 """, unsafe_allow_html=True)
 
     st.markdown("""
-<div style="margin-top:22px;padding:10px 14px;background:rgba(34,197,94,0.05);border:1px solid rgba(34,197,94,0.15);border-radius:8px;display:flex;align-items:center;gap:8px;">
-<div style="width:6px;height:6px;background:#22c55e;border-radius:50%;animation:pulse 2s infinite;flex-shrink:0;"></div>
-<span style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:#22c55e;letter-spacing:0.5px;">SYSTEM OPERATIONAL</span>
+<div style="margin-top:22px;padding:10px 14px;background:rgba(5,150,105,0.08);border:1px solid rgba(5,150,105,0.2);border-radius:8px;display:flex;align-items:center;gap:8px;">
+<div style="width:6px;height:6px;background:#059669;border-radius:50%;animation:pulse 2s infinite;flex-shrink:0;"></div>
+<span style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:#059669;letter-spacing:0.5px;font-weight:600;">SYSTEM OPERATIONAL</span>
 </div>
 """, unsafe_allow_html=True)
 
@@ -284,40 +307,36 @@ INTELLIGENCE STACK
 #  HERO
 # ═══════════════════════════════════════════════════════════
 st.markdown("""
-<div style="position:relative;padding:64px 0 52px;border-bottom:1px solid rgba(255,255,255,0.06);margin-bottom:0;overflow:hidden;">
-<div style="position:absolute;top:-60px;left:-80px;width:500px;height:300px;background:radial-gradient(ellipse,rgba(240,180,41,0.07) 0%,transparent 70%);pointer-events:none;"></div>
-<div style="position:absolute;bottom:-40px;right:0;width:400px;height:250px;background:radial-gradient(ellipse,rgba(255,94,26,0.05) 0%,transparent 70%);pointer-events:none;"></div>
-<div style="display:inline-flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:0.63rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#f0b429;border:1px solid rgba(240,180,41,0.2);background:rgba(240,180,41,0.06);border-radius:4px;padding:4px 12px;margin-bottom:20px;">
+<div style="position:relative;padding:64px 0 52px;border-bottom:1px solid rgba(128,0,32,0.1);margin-bottom:0;overflow:hidden;">
+<div style="position:absolute;top:-60px;left:-80px;width:500px;height:300px;background:radial-gradient(ellipse,rgba(128,0,32,0.06) 0%,transparent 70%);pointer-events:none;"></div>
+<div style="display:inline-flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:0.63rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#800020;border:1px solid rgba(128,0,32,0.25);background:rgba(128,0,32,0.05);border-radius:4px;padding:4px 12px;margin-bottom:20px;">
 ✦   GRADUATION PROJECT — SMART BI SYSTEM
 </div>
-<div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(3rem,6vw,5.5rem);line-height:0.95;letter-spacing:3px;color:#f0f2f8;margin-bottom:20px;">
+<div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(3rem,6vw,5.5rem);line-height:0.95;letter-spacing:3px;color:#1A1A1A;margin-bottom:20px;">
 FIND THE<br>
-<span style="background:linear-gradient(90deg,#f0b429 0%,#ff5e1a 55%,#f0b429 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">
+<span style="background:linear-gradient(90deg,#800020 0%,#9E1B34 55%,#800020 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">
 GOLDEN MOMENTS
 </span>
 </div>
-<p style="font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:300;color:#4a5268;max-width:560px;line-height:1.75;margin:0;">
+<p style="font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:400;color:#555555;max-width:560px;line-height:1.75;margin:0;">
 AI-powered crowd behaviour analytics. Surface emotional peaks, engagement spikes
 & highlight-worthy timestamps from tens of thousands of audience comments.
 </p>
 </div>
 """, unsafe_allow_html=True)
 
-# ═══════════════════════════════════════════════════════════
-#  SECTION HEADER HELPER
-# ═══════════════════════════════════════════════════════════
 def section_header(icon: str, title: str, subtitle: str = ""):
-    sub_html = f"<div style='font-size:0.78rem;color:#4a5268;margin-top:3px;font-family:DM Sans,sans-serif;'>{subtitle}</div>" if subtitle else ""
+    sub_html = f"<div style='font-size:0.78rem;color:#707070;margin-top:3px;font-family:DM Sans,sans-serif;'>{subtitle}</div>" if subtitle else ""
     st.markdown(f"""
 <div style="display:flex;align-items:flex-end;gap:16px;margin-bottom:20px;margin-top:52px;">
-<div style="width:44px;height:44px;flex-shrink:0;background:rgba(240,180,41,0.07);border:1px solid rgba(240,180,41,0.16);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;">
+<div style="width:44px;height:44px;flex-shrink:0;background:rgba(128,0,32,0.08);border:1px solid rgba(128,0,32,0.2);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;">
 {icon}
 </div>
 <div>
-<div style="font-family:'Bebas Neue',sans-serif;font-size:1.45rem;letter-spacing:2px;color:#f0f2f8;line-height:1;">{title}</div>
+<div style="font-family:'Bebas Neue',sans-serif;font-size:1.45rem;letter-spacing:2px;color:#1A1A1A;line-height:1;">{title}</div>
 {sub_html}
 </div>
-<div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(240,180,41,0.2),transparent);margin-bottom:8px;"></div>
+<div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(128,0,32,0.25),transparent);margin-bottom:8px;"></div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -326,12 +345,12 @@ def section_header(icon: str, title: str, subtitle: str = ""):
 # ═══════════════════════════════════════════════════════════
 if not target_url:
     st.markdown("""
-<div style="margin-top:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 40px;border:1px dashed rgba(255,255,255,0.07);border-radius:20px;text-align:center;">
-<div style="width:64px;height:64px;background:linear-gradient(135deg,rgba(240,180,41,0.12),rgba(255,94,26,0.08));border:1px solid rgba(240,180,41,0.18);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:20px;">✦</div>
-<div style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:2px;color:#f0f2f8;margin-bottom:10px;">
+<div style="margin-top:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 40px;border:1px dashed rgba(128,0,32,0.2);border-radius:20px;text-align:center;background:rgba(255,255,255,0.5);">
+<div style="width:64px;height:64px;background:linear-gradient(135deg,rgba(128,0,32,0.1),rgba(158,27,52,0.1));border:1px solid rgba(128,0,32,0.2);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:20px;box-shadow:0 8px 16px rgba(128,0,32,0.05);">✦</div>
+<div style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:2px;color:#800020;margin-bottom:10px;">
 READY FOR ANALYSIS
 </div>
-<p style="font-size:0.88rem;color:#4a5268;max-width:320px;line-height:1.7;margin:0;">
+<p style="font-size:0.88rem;color:#555555;max-width:320px;line-height:1.7;margin:0;">
 Paste a YouTube URL into the sidebar to begin detecting golden moments
 using the composite scoring algorithm.
 </p>
@@ -339,7 +358,7 @@ using the composite scoring algorithm.
 """, unsafe_allow_html=True)
 
 # ═══════════════════════════════════════════════════════════
-#  MAIN PIPELINE
+#  MAIN PIPELINE & SESSION STATE (CACHE)
 # ═══════════════════════════════════════════════════════════
 if target_url:
     vid_match = re.search(r"(?:v=|\/|embed\/|shorts\/)([0-9A-Za-z_-]{11})", target_url)
@@ -349,60 +368,96 @@ if target_url:
 
     v_id = vid_match.group(1)
 
-    with st.status("⚙️  Initialising BI Pipeline...", expanded=True) as status:
-        raw       = fetch_comments_refined(v_id)
-        df_parsed = process_intelligence(raw)
-        st.write("🧠  Running emotion classification on timestamped comments...")
-        df_work = df_parsed.head(3500).copy()
-        df_work['Sentiment'] = df_work['Content'].apply(classify_sentiment_logic)
-        df_f    = df_work[df_work['Sentiment'] != "Neutral"].copy()
-        status.update(label="✦  Analysis Complete — Dashboard Ready", state="complete", expanded=False)
+    # --- MEMORY LOGIC (SESSION STATE) ---
+    if "current_vid" not in st.session_state:
+        st.session_state.current_vid = None
+    if "df_work" not in st.session_state:
+        st.session_state.df_work = pd.DataFrame()
+    if "raw_len" not in st.session_state:
+        st.session_state.raw_len = 0
+    if "parsed_len" not in st.session_state:
+        st.session_state.parsed_len = 0
+
+    # Execute heavy operations ONLY if the video ID is new
+    if st.session_state.current_vid != v_id:
+        with st.status("⚙️  Initialising BI Pipeline (Running NLP Model)...", expanded=True) as status:
+            raw = fetch_comments_refined(v_id)
+            st.session_state.raw_len = len(raw)
+            
+            df_parsed = process_intelligence(raw)
+            st.session_state.parsed_len = len(df_parsed)
+            
+            st.write("🧠  Running emotion classification on timestamped comments...")
+            df_work = df_parsed.head(3500).copy()
+            df_work['Sentiment'] = df_work['Content'].apply(classify_sentiment_logic)
+            
+            # Save to memory
+            st.session_state.df_work = df_work
+            st.session_state.current_vid = v_id
+            status.update(label="✦  Analysis Complete — Data Cached in Memory", state="complete", expanded=False)
 
     st.markdown("<div style='height:36px'></div>", unsafe_allow_html=True)
 
-    # ── KPI ROW ──
+    # Load data instantly from memory
+    df_work_cached = st.session_state.df_work.copy()
+    
+    # --- INTERACTIVE FILTERING ---
+    df_f = df_work_cached[df_work_cached['Sentiment'] != "Neutral"].copy()
+    if selected_filter != "All Emotions":
+        df_f = df_f[df_f['Sentiment'] == selected_filter].copy()
+
     c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Comments Captured", f"{len(raw):,}")
-    c2.metric("Timestamped",       f"{len(df_parsed):,}")
+    c1.metric("Comments Captured", f"{st.session_state.raw_len:,}")
+    c2.metric("Timestamped",       f"{st.session_state.parsed_len:,}")
     c3.metric("Emotive Signals",   f"{len(df_f):,}")
     c4.metric("Confidence",        "96.4%")
 
     # ── HEATMAP ──
-    section_header("📊", "ENGAGEMENT HEATMAP", "Emotional intensity across the video timeline")
+    header_text = f"ENGAGEMENT HEATMAP ({selected_filter.upper()})" if selected_filter != "All Emotions" else "ENGAGEMENT HEATMAP"
+    section_header("📊", header_text, "Emotional intensity across the video timeline (in minutes)")
 
-    fig = px.histogram(
-        df_f, x="Seconds", color="Sentiment", nbins=120,
-        template="plotly_dark", height=380,
-        color_discrete_map={k: v["color"] for k, v in EMOTION_CONFIG.items()},
-        labels={"Seconds": "Timeline (seconds)", "count": "Emotional Mentions"}
-    )
-    fig.update_layout(
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(17,23,32,0.6)",
-        font=dict(family="JetBrains Mono", color="#4a5268", size=11),
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1,
-                    bgcolor="rgba(0,0,0,0)", font=dict(color="#8b93a8", size=11), title_text=""),
-        xaxis=dict(gridcolor="rgba(255,255,255,0.04)", zeroline=False,
-                   title_font=dict(color="#4a5268"), tickfont=dict(color="#4a5268")),
-        yaxis=dict(gridcolor="rgba(255,255,255,0.04)", zeroline=False,
-                   title_font=dict(color="#4a5268"), tickfont=dict(color="#4a5268")),
-        bargap=0.05, margin=dict(l=0, r=0, t=36, b=0),
-    )
-    st.plotly_chart(fig, use_container_width=True)
+    if not df_f.empty:
+        df_f['Minutes'] = df_f['Seconds'] / 60.0
+        
+        max_valid_minute = df_f['Minutes'].quantile(0.995)
+        df_plot = df_f[df_f['Minutes'] <= max_valid_minute]
+
+        fig = px.histogram(
+            df_plot, x="Minutes", color="Sentiment", nbins=100,
+            template="plotly_white", height=380,
+            color_discrete_map={k: v["color"] for k, v in EMOTION_CONFIG.items()},
+            labels={"Minutes": "Timeline (Minutes)", "count": "Emotional Mentions"}
+        )
+        fig.update_layout(
+            autosize=True,
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+            font=dict(family="JetBrains Mono", color="#555555", size=11),
+            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1,
+                        bgcolor="rgba(0,0,0,0)", font=dict(color="#4A4A4A", size=11), title_text=""),
+            xaxis=dict(gridcolor="rgba(128,0,32,0.05)", zeroline=False,
+                       title_font=dict(color="#555555"), tickfont=dict(color="#555555")),
+            yaxis=dict(gridcolor="rgba(128,0,32,0.05)", zeroline=False,
+                       title_font=dict(color="#555555"), tickfont=dict(color="#555555")),
+            bargap=0.05, margin=dict(l=0, r=0, t=36, b=0),
+        )
+        st.plotly_chart(fig, use_container_width=True)
+    else:
+        st.warning(f"No '{selected_filter}' moments detected in this video.")
 
     # ── GOLDEN MOMENTS ──
     section_header("🏆", "GOLDEN MOMENT DETECTION",
                    "Composite score: volume × emotion heat × diversity bonus · min 3-min spread")
 
     if df_f.empty:
-        st.info("No emotive peaks detected — try a video with a more engaged comment section.")
+        st.info("No emotive peaks detected for your selection.")
     else:
         highlights = compute_smart_highlights(df_f, top_n=3)
 
         rank_meta = [
-            {"label": "PEAK MOMENT",  "crown": "👑", "border_top": "#f0b429"},
-            {"label": "RUNNER-UP",    "crown": "🥈", "border_top": "#8b93a8"},
-            {"label": "THIRD SPIKE",  "crown": "🥉", "border_top": "#b45309"},
+            {"label": "PEAK MOMENT",  "crown": "👑", "border_top": "#800020"},
+            {"label": "RUNNER-UP",    "crown": "🥈", "border_top": "#9E1B34"},
+            {"label": "THIRD SPIKE",  "crown": "🥉", "border_top": "#707070"},
         ]
 
         cols = st.columns(3, gap="large")
@@ -410,42 +465,47 @@ if target_url:
             cfg  = EMOTION_CONFIG.get(row['Sentiment'], FALLBACK_CFG)
             meta = rank_meta[i] if i < len(rank_meta) else rank_meta[-1]
             pct  = int(row['ScorePct'])
+            
+            yt_link = f"https://youtu.be/{v_id}?t={int(row['Seconds'])}"
 
             with cols[i]:
                 st.markdown(f"""
-<div style="position:relative;background:linear-gradient(160deg,rgba(255,255,255,0.04) 0%,rgba(255,255,255,0.01) 100%);border:1px solid rgba(255,255,255,0.08);border-top:3px solid {meta['border_top']};border-radius:16px;padding:28px 24px 24px;overflow:hidden;font-family:'DM Sans',sans-serif;">
-<div style="position:absolute;top:-30px;right:-30px;width:120px;height:120px;background:radial-gradient(circle,{cfg['glow']} 0%,transparent 70%);pointer-events:none;"></div>
+<div style="position:relative;background:#FFFFFF;border:1px solid rgba(128,0,32,0.12);border-top:4px solid {meta['border_top']};border-radius:16px;padding:28px 24px 24px;overflow:hidden;font-family:'DM Sans',sans-serif;box-shadow:0 10px 25px rgba(0,0,0,0.04);">
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-<div style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;font-weight:600;letter-spacing:1.5px;color:#4a5268;">{meta['label']}</div>
+<div style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;font-weight:600;letter-spacing:1.5px;color:#707070;">{meta['label']}</div>
 <div style="font-size:1.2rem;">{meta['crown']}</div>
 </div>
 <div style="display:inline-flex;align-items:center;gap:6px;background:{cfg['bg']};border:1px solid {cfg['border']};border-radius:6px;padding:4px 12px;font-size:0.72rem;font-weight:600;color:{cfg['color']};margin-bottom:16px;font-family:'JetBrains Mono',monospace;letter-spacing:0.5px;">
 {cfg['icon']}  {row['Sentiment'].upper()}
 </div>
-<div style="font-family:'Bebas Neue',sans-serif;font-size:3.8rem;letter-spacing:3px;line-height:1;color:#f0f2f8;margin-bottom:4px;">
+
+<a href="{yt_link}" target="_blank" class="highlight-link" style="text-decoration:none; display:inline-block;">
+<div style="font-family:'Bebas Neue',sans-serif;font-size:3.8rem;letter-spacing:3px;line-height:1;color:#1A1A1A;margin-bottom:4px;display:flex;align-items:center;gap:12px;transition:all 0.2s ease;">
 {row['Timestamp']}
+<span style="background:rgba(128,0,32,0.08);color:#800020;font-family:'JetBrains Mono',monospace;font-size:1rem;padding:4px 10px;border-radius:8px;font-weight:600;letter-spacing:0.5px;display:flex;align-items:center;">▶ PLAY</span>
 </div>
-<div style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:#4a5268;margin-bottom:22px;letter-spacing:0.5px;">
+</a>
+
+<div style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:#707070;margin-bottom:22px;letter-spacing:0.5px;margin-top:6px;">
 {int(row['Diversity'])} emotion type{'s' if row['Diversity'] > 1 else ''}  ·  {int(row['Count'])} comments
 </div>
-<div style="width:100%;height:4px;background:rgba(255,255,255,0.06);border-radius:2px;margin-bottom:10px;overflow:hidden;">
+<div style="width:100%;height:4px;background:rgba(128,0,32,0.06);border-radius:2px;margin-bottom:10px;overflow:hidden;">
 <div style="width:{pct}%;height:100%;background:linear-gradient(90deg,{cfg['color']},{meta['border_top']});border-radius:2px;"></div>
 </div>
 <div style="display:flex;justify-content:space-between;align-items:center;">
-<span style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;letter-spacing:0.5px;color:#4a5268;">COMPOSITE SCORE</span>
+<span style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;letter-spacing:0.5px;color:#707070;">COMPOSITE SCORE</span>
 <span style="font-family:'Bebas Neue',sans-serif;font-size:1.15rem;letter-spacing:1px;color:{cfg['color']};">{pct}</span>
 </div>
 </div>
 """, unsafe_allow_html=True)
 
-        # ── Algorithm explainer ──
         st.markdown("""
-<div style="margin-top:18px;padding:16px 20px;background:rgba(240,180,41,0.03);border:1px solid rgba(240,180,41,0.1);border-radius:10px;display:flex;gap:14px;align-items:flex-start;">
+<div style="margin-top:18px;padding:16px 20px;background:rgba(128,0,32,0.03);border:1px solid rgba(128,0,32,0.1);border-radius:10px;display:flex;gap:14px;align-items:flex-start;">
 <span style="font-size:1rem;flex-shrink:0;margin-top:1px;">⚡</span>
 <div>
-<div style="font-family:'JetBrains Mono',monospace;font-size:0.62rem;font-weight:600;letter-spacing:1px;color:#f0b429;margin-bottom:6px;">HOW THE SCORE IS CALCULATED</div>
-<p style="font-size:0.78rem;color:#4a5268;margin:0;line-height:1.75;">
-Each 60-second window is ranked by <code style='color:#8b93a8;background:rgba(255,255,255,0.05);padding:1px 6px;border-radius:3px;'>count × avg_heat × diversity_bonus</code>.
+<div style="font-family:'JetBrains Mono',monospace;font-size:0.62rem;font-weight:600;letter-spacing:1px;color:#800020;margin-bottom:6px;">HOW THE SCORE IS CALCULATED</div>
+<p style="font-size:0.78rem;color:#555555;margin:0;line-height:1.75;">
+Each 60-second window is ranked by <code style='color:#800020;background:rgba(128,0,32,0.08);padding:1px 6px;border-radius:3px;font-weight:600;'>count × avg_heat × diversity_bonus</code>.
 Heat weights: Controversial 1.5 · Funny 1.4 · Inspirational 1.3 · Happy 1.0 · Sad 0.9.
 A 3-minute minimum gap is enforced so highlights are spread across the full video.
 </p>
@@ -454,22 +514,24 @@ A 3-minute minimum gap is enforced so highlights are spread across the full vide
 """, unsafe_allow_html=True)
 
     # ── EMOTION BREAKDOWN ──
-    section_header("🎭", "EMOTION BREAKDOWN", "Distribution of detected sentiment categories")
+    if selected_filter == "All Emotions":
+        section_header("🎭", "EMOTION BREAKDOWN", "Distribution of detected sentiment categories")
 
-    em_counts = df_f['Sentiment'].value_counts().reset_index()
-    em_counts.columns = ['Sentiment', 'Count']
-    fig2 = px.bar(
-        em_counts, x='Sentiment', y='Count', color='Sentiment',
-        template='plotly_dark', height=300,
-        color_discrete_map={k: v["color"] for k, v in EMOTION_CONFIG.items()},
-    )
-    fig2.update_layout(
-        paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(17,23,32,0.6)",
-        showlegend=False,
-        font=dict(family="JetBrains Mono", color="#4a5268", size=11),
-        xaxis=dict(gridcolor="rgba(255,255,255,0.04)", zeroline=False, tickfont=dict(color="#8b93a8")),
-        yaxis=dict(gridcolor="rgba(255,255,255,0.04)", zeroline=False, tickfont=dict(color="#4a5268")),
-        margin=dict(l=0, r=0, t=10, b=0),
-    )
-    fig2.update_traces(marker_line_width=0)
-    st.plotly_chart(fig2, use_container_width=True)
+        em_counts = df_work_cached[df_work_cached['Sentiment'] != "Neutral"]['Sentiment'].value_counts().reset_index()
+        em_counts.columns = ['Sentiment', 'Count']
+        fig2 = px.bar(
+            em_counts, x='Sentiment', y='Count', color='Sentiment',
+            template="plotly_white", height=300,
+            color_discrete_map={k: v["color"] for k, v in EMOTION_CONFIG.items()},
+        )
+        
+        fig2.update_layout(
+            paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+            showlegend=False,
+            font=dict(family="JetBrains Mono", color="#800020", size=12), 
+            xaxis=dict(gridcolor="rgba(128,0,32,0.05)", zeroline=False, tickfont=dict(color="#800020")), 
+            yaxis=dict(gridcolor="rgba(128,0,32,0.05)", zeroline=False, tickfont=dict(color="#555555")),
+            margin=dict(l=0, r=0, t=10, b=0),
+        )
+        fig2.update_traces(marker_line_width=0)
+        st.plotly_chart(fig2, use_container_width=True)
