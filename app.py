@@ -7,11 +7,12 @@ import numpy as np
 from googleapiclient.discovery import build
 from transformers import pipeline
 from typing import List
+from deep_translator import GoogleTranslator
 
 # ==========================================================
 # API KEY
 # ==========================================================
-API_KEY = "your_api_key_here" 
+API_KEY = "your_youtube_api_key_here"  # Replace with your YouTube Data API key
 # ==========================================================
 
 st.set_page_config(
@@ -50,19 +51,28 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stAppViewContainer
 }
 [data-testid="block-container"] { padding: 0 3rem 5rem !important; max-width: 1400px; }
 #MainMenu, footer, header { visibility: hidden; }
+header { background-color: transparent !important; }
+
 [data-testid="stSidebar"] { background: var(--surface-1) !important; border-right: 1px solid var(--border) !important; }
 [data-testid="stSidebar"] > div { padding-top: 0 !important; }
-[data-testid="stSidebar"] .stTextInput label, [data-testid="stSidebar"] .stSelectbox label {
+
+/* Customizing Radio Buttons */
+div[role="radiogroup"] > label {
+    font-family: var(--font-body) !important;
+    font-size: 0.85rem !important;
+    color: var(--text-2) !important;
+}
+
+[data-testid="stSidebar"] .stTextInput label {
     color: var(--text-3) !important; font-size: 0.65rem !important; font-weight: 600 !important;
     letter-spacing: 1.4px !important; text-transform: uppercase !important; font-family: var(--font-mono) !important;
 }
-[data-testid="stSidebar"] .stTextInput input, [data-testid="stSidebar"] .stSelectbox > div > div {
+[data-testid="stSidebar"] .stTextInput input {
     background: var(--surface-2) !important; border: 1px solid var(--border) !important;
     border-radius: 8px !important; color: var(--text-1) !important; font-family: var(--font-mono) !important;
-    font-size: 0.78rem !important; transition: border-color 0.2s !important;
+    font-size: 0.78rem !important; transition: border-color 0.2s !important; padding: 10px 14px !important;
 }
-[data-testid="stSidebar"] .stTextInput input { padding: 10px 14px !important; }
-[data-testid="stSidebar"] .stTextInput input:focus, [data-testid="stSidebar"] .stSelectbox > div > div:focus {
+[data-testid="stSidebar"] .stTextInput input:focus {
     border-color: var(--cherry) !important; box-shadow: 0 0 0 3px rgba(128,0,32,0.12) !important; outline: none !important;
 }
 [data-testid="stSidebar"] .stTextInput input::placeholder { color: var(--text-3) !important; font-size: 0.75rem !important; }
@@ -109,7 +119,7 @@ emotion_engine = load_emotion_engine()
 # ═══════════════════════════════════════════════════════════
 #  DATA ACQUISITION
 # ═══════════════════════════════════════════════════════════
-def fetch_comments_refined(video_id: str, max_results: int = 50000):
+def fetch_comments_refined(video_id: str, max_results: int):
     youtube = build("youtube", "v3", developerKey=API_KEY)
     comments, next_page_token = [], None
     progress_bar = st.progress(0)
@@ -125,12 +135,12 @@ def fetch_comments_refined(video_id: str, max_results: int = 50000):
             next_page_token = response.get('nextPageToken')
             n = len(comments)
             progress_bar.progress(min(n / max_results, 1.0))
-            if n < 10000:
-                msg = "📡  Connecting to YouTube Data Stream..."
-            elif n < 30000:
-                msg = f"📥  Pulling comments — {n:,} captured so far..."
+            if n < 5000:
+                msg = f"⚡ Fast Sampling... {n:,} captured"
+            elif n < 15000:
+                msg = f"📥 Standard Sampling... {n:,} captured"
             else:
-                msg = f"⚙️  Optimising payload for inference — {n:,} samples"
+                msg = f"🕵️‍♂️ Deep Analysis... {n:,} captured"
             status_text.markdown(
 f"<p style='color:#707070;font-size:0.8rem;font-family:JetBrains Mono,monospace;'>{msg}</p>",
 unsafe_allow_html=True
@@ -145,28 +155,48 @@ unsafe_allow_html=True
     return comments
 
 # ═══════════════════════════════════════════════════════════
-#  PARSING
+#  PARSING & HYBRID ARABIC SENTIMENT ENGINE (Lexicon + ML)
 # ═══════════════════════════════════════════════════════════
 def process_intelligence(comments: List[str]):
     data = []
     pattern = r'(\d{1,2}:\d{2}(?::\d{2})?)'
+    
+    arabic_to_english_digits = str.maketrans('٠١٢٣٤٥٦٧٨٩', '0123456789')
+    
     for text in comments:
-        matches = re.findall(pattern, text)
+        normalized_text = text.translate(arabic_to_english_digits)
+        matches = re.findall(pattern, normalized_text)
         if matches:
             ts = matches[0]
             pts = list(map(int, ts.split(':')))
             secs = pts[0]*3600 + pts[1]*60 + pts[2] if len(pts) == 3 else pts[0]*60 + pts[1]
-            data.append({"Timestamp": ts, "Seconds": secs, "Content": text})
+            data.append({"Timestamp": ts, "Seconds": secs, "Content": normalized_text})
     return pd.DataFrame(data)
 
 def classify_sentiment_logic(text: str):
     t = text.lower()
-    if any(x in t for x in ['😂', '🤣', 'lol', 'haha', 'funny']):
+    
+    # 1. Lexicon Engine: Rule-based matching for High-Accuracy Arabic Dialects
+    if any(x in t for x in ['😂', '🤣', 'lol', 'haha', 'funny', 'هههه', 'بضحك', 'متت', 'فطست', 'لول']):
         return "Funny"
+    if any(x in t for x in ['حلو', 'بجنن', 'رائع', 'اسطورة', 'فخم', 'رهيب', 'ابداع', 'عظمة', 'وحش', 'كفو', 'عاش', 'جميل', 'كبير']):
+        return "Happy"
+    if any(x in t for x in ['حزين', 'يقهر', 'يبكي', 'زعلت', 'حرام', 'قهر', 'كسر خاطري', 'مسكين']):
+        return "Sad"
+    if any(x in t for x in ['غلط', 'كذاب', 'مستفز', 'يع', 'سيء', 'تافه', 'مستحيل', 'قرف', 'كذب']):
+        return "Controversial"
+    if any(x in t for x in ['عظيم', 'مؤثر', 'بطل', 'فخر', 'ملهم', 'احترام']):
+        return "Inspirational"
+
+    # 2. ML Engine: Fallback to Translation & Transformers for complex context
     try:
-        res = emotion_engine(text[:512])[0]
+        if re.search(r'[\u0600-\u06FF]', text):
+            processed_text = GoogleTranslator(source='auto', target='en').translate(text[:500])
+        else:
+            processed_text = text
+        res = emotion_engine(processed_text[:512])[0]
         return {'joy': 'Happy', 'sadness': 'Sad', 'anger': 'Controversial', 'surprise': 'Inspirational'}.get(res['label'], "Neutral")
-    except:
+    except Exception as e:
         return "Neutral"
 
 # ═══════════════════════════════════════════════════════════
@@ -259,6 +289,30 @@ DATA SOURCE
         key="yt_input"
     )
 
+    # --- SPEED CONTROLLER (RADIO BUTTONS) ---
+    st.markdown("""
+<div style="margin-top:20px;padding:0 4px 6px;">
+<span style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;letter-spacing:1.3px;text-transform:uppercase;color:#707070;">
+ANALYSIS SPEED / DEPTH
+</span>
+</div>
+""", unsafe_allow_html=True)
+
+    depth_options = {
+        "🚀 Quick Sample (5k)": 5000,
+        "⚖️ Standard Mode (15k)": 15000,
+        "🕵️‍♂️ Deep Scan (50k)": 50000
+    }
+    
+    selected_depth_label = st.radio(
+        "Depth",
+        options=list(depth_options.keys()),
+        label_visibility="collapsed",
+        index=0
+    )
+    target_max_results = depth_options[selected_depth_label]
+
+    # --- EMOTION FILTER (RADIO BUTTONS) ---
     st.markdown("""
 <div style="margin-top:20px;padding:0 4px 6px;">
 <span style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;letter-spacing:1.3px;text-transform:uppercase;color:#707070;">
@@ -267,7 +321,7 @@ TARGET EMOTION
 </div>
 """, unsafe_allow_html=True)
 
-    selected_filter = st.selectbox(
+    selected_filter = st.radio(
         "Filter by Emotion",
         options=["All Emotions", "Funny", "Happy", "Sad", "Controversial", "Inspirational"],
         label_visibility="collapsed",
@@ -283,10 +337,9 @@ INTELLIGENCE STACK
 """, unsafe_allow_html=True)
 
     for tag, label in [
-        ("NLP",    "7-class emotion model"),
-        ("DATA",   "Up to 50,000 comments"),
+        ("NLP",    "Hybrid Sentiment (Lexicon + ML)"),
+        ("ETL",    "Dynamic Sampling API"),
         ("ALGO",   "Composite score ranking"),
-        ("SPREAD", "3-min gap enforcement"),
         ("HEAT",   "Emotion intensity weights"),
     ]:
         st.markdown(f"""
@@ -320,7 +373,7 @@ GOLDEN MOMENTS
 </div>
 <p style="font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:400;color:#555555;max-width:560px;line-height:1.75;margin:0;">
 AI-powered crowd behaviour analytics. Surface emotional peaks, engagement spikes
-& highlight-worthy timestamps from tens of thousands of audience comments.
+& highlight-worthy timestamps from tens of thousands of audience comments (Now supporting Arabic content).
 </p>
 </div>
 """, unsafe_allow_html=True)
@@ -368,9 +421,10 @@ if target_url:
 
     v_id = vid_match.group(1)
 
-    # --- MEMORY LOGIC (SESSION STATE) ---
     if "current_vid" not in st.session_state:
         st.session_state.current_vid = None
+    if "current_depth" not in st.session_state:
+        st.session_state.current_depth = None
     if "df_work" not in st.session_state:
         st.session_state.df_work = pd.DataFrame()
     if "raw_len" not in st.session_state:
@@ -378,39 +432,36 @@ if target_url:
     if "parsed_len" not in st.session_state:
         st.session_state.parsed_len = 0
 
-    # Execute heavy operations ONLY if the video ID is new
-    if st.session_state.current_vid != v_id:
-        with st.status("⚙️  Initialising BI Pipeline (Running NLP Model)...", expanded=True) as status:
-            raw = fetch_comments_refined(v_id)
+    if st.session_state.current_vid != v_id or st.session_state.current_depth != target_max_results:
+        with st.status("⚙️  Initialising BI Pipeline (Running NLP)...", expanded=True) as status:
+            raw = fetch_comments_refined(v_id, max_results=target_max_results)
             st.session_state.raw_len = len(raw)
             
             df_parsed = process_intelligence(raw)
             st.session_state.parsed_len = len(df_parsed)
             
-            st.write("🧠  Running emotion classification on timestamped comments...")
+            st.write("🧠  Processing Multilingual Sentiments...")
             df_work = df_parsed.head(3500).copy()
             df_work['Sentiment'] = df_work['Content'].apply(classify_sentiment_logic)
             
-            # Save to memory
             st.session_state.df_work = df_work
             st.session_state.current_vid = v_id
+            st.session_state.current_depth = target_max_results
             status.update(label="✦  Analysis Complete — Data Cached in Memory", state="complete", expanded=False)
 
     st.markdown("<div style='height:36px'></div>", unsafe_allow_html=True)
 
-    # Load data instantly from memory
     df_work_cached = st.session_state.df_work.copy()
     
-    # --- INTERACTIVE FILTERING ---
     df_f = df_work_cached[df_work_cached['Sentiment'] != "Neutral"].copy()
     if selected_filter != "All Emotions":
         df_f = df_f[df_f['Sentiment'] == selected_filter].copy()
 
     c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Comments Captured", f"{st.session_state.raw_len:,}")
-    c2.metric("Timestamped",       f"{st.session_state.parsed_len:,}")
-    c3.metric("Emotive Signals",   f"{len(df_f):,}")
-    c4.metric("Confidence",        "96.4%")
+    c1.metric("Comments Sampled", f"{st.session_state.raw_len:,}")
+    c2.metric("Timestamped",      f"{st.session_state.parsed_len:,}")
+    c3.metric("Emotive Signals",  f"{len(df_f):,}")
+    c4.metric("Confidence",       "96.4%")
 
     # ── HEATMAP ──
     header_text = f"ENGAGEMENT HEATMAP ({selected_filter.upper()})" if selected_filter != "All Emotions" else "ENGAGEMENT HEATMAP"
@@ -445,14 +496,28 @@ if target_url:
     else:
         st.warning(f"No '{selected_filter}' moments detected in this video.")
 
-    # ── GOLDEN MOMENTS ──
-    section_header("🏆", "GOLDEN MOMENT DETECTION",
-                   "Composite score: volume × emotion heat × diversity bonus · min 3-min spread")
+    # ── GOLDEN MOMENTS & EXPORT BUTTON ──
+    col_hdr_1, col_hdr_2 = st.columns([3, 1])
+    with col_hdr_1:
+        section_header("🏆", "GOLDEN MOMENT DETECTION",
+                       "Composite score: volume × emotion heat × diversity bonus · min 3-min spread")
 
     if df_f.empty:
         st.info("No emotive peaks detected for your selection.")
     else:
         highlights = compute_smart_highlights(df_f, top_n=3)
+        
+        # --- CSV EXPORT FUNCTIONALITY ---
+        with col_hdr_2:
+            st.markdown("<div style='margin-top: 52px;'></div>", unsafe_allow_html=True)
+            csv = highlights[['Timestamp', 'Sentiment', 'Count', 'ScorePct']].to_csv(index=False).encode('utf-8')
+            st.download_button(
+                label="📥 Export to Editor (CSV)",
+                data=csv,
+                file_name=f'highlights_{v_id}.csv',
+                mime='text/csv',
+                use_container_width=True
+            )
 
         rank_meta = [
             {"label": "PEAK MOMENT",  "crown": "👑", "border_top": "#800020"},
